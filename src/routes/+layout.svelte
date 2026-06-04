@@ -11,7 +11,7 @@
 	let { children } = $props();
 
 	// Production origin — used for canonical + absolute OG/Twitter image URLs.
-	const SITE_URL = 'https://scapewhisky.com';
+	const SITE_URL = 'https://scapewhisky.pages.dev';
 	const OG_IMAGE = `${SITE_URL}/OGP.png`;
 	const TITLE = 'Scape Whisky — Japanese Landscape Whisky';
 	const DESCRIPTION =
