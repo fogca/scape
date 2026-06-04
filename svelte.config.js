@@ -14,6 +14,8 @@ const config = {
 		}
 	},
 	kit: {
+		// Targeting Cloudflare Pages deployment.
+		// See https://svelte.dev/docs/kit/adapter-cloudflare for configuration options.
 		adapter: adapter()
 	}
 };
