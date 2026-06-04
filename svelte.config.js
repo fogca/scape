@@ -1,4 +1,4 @@
-import adapter from '@sveltejs/adapter-cloudflare';
+import adapter from '@sveltejs/adapter-static';
 import { relative, sep } from 'node:path';
 
 /** @type {import('@sveltejs/kit').Config} */
@@ -14,9 +14,15 @@ const config = {
 		}
 	},
 	kit: {
-		// Targeting Cloudflare Pages deployment.
-		// See https://svelte.dev/docs/kit/adapter-cloudflare for configuration options.
-		adapter: adapter()
+		// Fully static output for Cloudflare Pages (no Worker / wrangler needed).
+		// Every route is prerendered (see +layout.ts), so no SPA fallback is required.
+		adapter: adapter({
+			pages: 'build',
+			assets: 'build',
+			fallback: undefined,
+			precompress: false,
+			strict: true
+		})
 	}
 };
 
