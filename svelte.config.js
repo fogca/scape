@@ -14,17 +14,7 @@ const config = {
 		}
 	},
 	kit: {
-		// Cloudflare Pages (auto-detected output: .svelte-kit/cloudflare — no build
-		// output dir setting needed). The whole site is prerendered (see +layout.ts),
-		// so the bundled Worker must handle nothing. Excluding every route ("/*")
-		// keeps Pages serving pure static assets and avoids the overlapping-rules
-		// error in the auto-generated _routes.json.
-		adapter: adapter({
-			routes: {
-				include: ['/*'],
-				exclude: ['/*']
-			}
-		})
+		adapter: adapter()
 	}
 };
 
