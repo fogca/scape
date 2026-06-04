@@ -1,4 +1,0 @@
-# Teaser phase: any path without a matching static asset (e.g. /privacy,
-# /legal, mistyped URLs) falls back to the homepage. Real assets such as
-# /, /full and /OGP.png are served as-is (a splat never overrides an asset).
-/*  /  302
