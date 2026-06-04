@@ -1,0 +1,10 @@
+# Teaser launch — only the homepage should be indexed.
+# WIP routes are preserved in the build but kept out of search until launch.
+User-agent: *
+Allow: /$
+Disallow: /full
+Disallow: /about
+Disallow: /cask-owner
+Disallow: /products
+
+Sitemap: https://scapewhisky.com/sitemap.xml

@@ -1,0 +1,373 @@
+/* =========================================================
+ * Scape Whisky — base.css
+ * Single source of truth for tokens + utility classes.
+ * Components must not redefine font / size / color / weight;
+ * always reach for a utility or a token.
+ * ========================================================= */
+
+/* ─── Fonts ──────────────────────────────────────────── */
+@font-face {
+	font-family: 'Arnet';
+	src: url('/fonts/Arnet-Regular.otf') format('opentype');
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Arnet';
+	src: url('/fonts/Arnet-Medium.otf') format('opentype');
+	font-weight: 500;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Arnet';
+	src: url('/fonts/Arnet-Black.otf') format('opentype');
+	font-weight: 900;
+	font-style: normal;
+	font-display: swap;
+}
+
+/* ─── Tokens ─────────────────────────────────────────── */
+:root {
+	/* Color */
+	--c-bg: #fff1dc;
+	--c-text: #4a2613;
+	--c-mute: rgba(74, 38, 19, 0.6);
+	--c-line: rgba(74, 38, 19, 0.2);
+	--c-accent: #da510c;
+	--c-deep: #092500;
+	--c-dark: #180c06;
+	--c-white: #fff1dc;
+	--c-black: #28160d;
+
+	/* Typeface */
+	--font-en: 'Arnet', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+	--font-ja:
+		'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', sans-serif;
+
+	/* Type scale (desktop) */
+	--fs-h1: 96px;
+	--fs-h2: 56px;
+	--fs-h3: 32px;
+	--fs-body: 11px;
+	--fs-meta: 11px;
+	--fs-sm: 11px;
+
+	/* Tracking / Leading */
+	--ls-en: 0;
+	--ls-ja: 0;
+	--lh-en: 1.1;
+	--lh-ja: 1.7;
+
+	/* Spacing */
+	--sp-1: 4px;
+	--sp-2: 8px;
+	--sp-3: 12px;
+	--sp-4: 16px;
+	--sp-5: 20px;
+	--sp-6: 24px;
+	--sp-7: 32px;
+	--sp-8: 40px;
+	--sp-9: 60px;
+	--sp-10: 80px;
+	--sp-11: 120px;
+	--sp-12: 160px;
+
+	/* Layout */
+	--padding: clamp(24px, 5vw, 80px);
+	--max-width: 1440px;
+
+	/* Motion */
+	--duration-fast: 200ms;
+	--duration-default: 400ms;
+	--duration-slow: 800ms;
+	--ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+	--ease-out: cubic-bezier(0, 0, 0.2, 1);
+
+	/* Z-index */
+	--z-base: 0;
+	--z-content: 1;
+	--z-header: 50;
+	--z-floating: 40;
+	--z-overlay: 100;
+}
+
+/* SP overrides */
+@media (max-width: 540px) {
+	:root {
+		--fs-h1: 48px;
+		--fs-h2: 32px;
+		--fs-h3: 22px;
+		--fs-body: 11px;
+		--fs-meta: 11px;
+		--fs-sm: 11px;
+	}
+}
+
+/* ─── Reset ──────────────────────────────────────────── */
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+body {
+	background: var(--c-bg);
+	color: var(--c-text);
+	font-family: var(--font-ja);
+	font-weight: 400;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+:lang(ja) {
+	font-feature-settings: 'palt' 1;
+}
+
+a {
+	color: inherit;
+	text-decoration: none;
+}
+
+ul,
+ol {
+	list-style: none;
+}
+
+img,
+picture,
+svg,
+video {
+	display: block;
+	max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+	font: inherit;
+	color: inherit;
+}
+
+/* ─── Layout — main horizontal padding ───────────────── */
+main {
+	padding-left: var(--padding);
+	padding-right: var(--padding);
+}
+
+/* ─── Typography utilities ───────────────────────────── */
+.h1,
+.h2,
+.h3 {
+	font-family: var(--font-en);
+	font-weight: 900;
+	line-height: var(--lh-en);
+	letter-spacing: var(--ls-en);
+	color: var(--c-text);
+	margin: 0;
+}
+
+.h1 {
+	font-size: var(--fs-h1);
+}
+
+.h2 {
+	font-size: var(--fs-h2);
+}
+
+.h3 {
+	font-size: var(--fs-h3);
+}
+
+.eyebrow,
+.meta {
+	font-family: var(--font-en);
+	font-weight: 500;
+	font-size: var(--fs-sm);
+	line-height: var(--lh-en);
+	letter-spacing: 0;
+	color: var(--c-mute);
+	margin: 0;
+}
+
+.h-ja {
+	font-family: var(--font-ja);
+	font-weight: 400;
+	font-size: var(--fs-meta);
+	line-height: var(--lh-ja);
+	letter-spacing: var(--ls-ja);
+	color: var(--c-text);
+	margin: 0;
+}
+
+.body {
+	font-family: var(--font-ja);
+	font-weight: 400;
+	font-size: var(--fs-body);
+	line-height: var(--lh-ja);
+	letter-spacing: var(--ls-ja);
+	color: var(--c-text);
+	margin: 0;
+}
+
+.body-sm {
+	font-family: var(--font-ja);
+	font-weight: 400;
+	font-size: var(--fs-sm);
+	line-height: var(--lh-ja);
+	letter-spacing: var(--ls-ja);
+	color: var(--c-mute);
+	margin: 0;
+}
+
+/* ─── Color helpers ──────────────────────────────────── */
+.white {
+	color: var(--c-white);
+}
+
+.dark {
+	color: var(--c-text);
+}
+
+.mute {
+	color: var(--c-mute);
+}
+
+.accent {
+	color: var(--c-accent);
+}
+
+.deep {
+	color: var(--c-deep);
+}
+
+.bg-accent {
+	background: var(--c-accent);
+	color: var(--c-white);
+}
+
+.bg-deep {
+	background: var(--c-deep);
+	color: var(--c-white);
+}
+
+.inverse {
+	background: var(--c-text);
+	color: var(--c-white);
+}
+
+.inverse .eyebrow,
+.inverse .meta,
+.inverse .mute,
+.inverse .body-sm {
+	color: rgba(255, 241, 220, 0.6);
+}
+
+.inverse .body,
+.inverse .h-ja {
+	color: rgba(255, 241, 220, 0.85);
+}
+
+.inverse .h1,
+.inverse .h2,
+.inverse .h3 {
+	color: var(--c-white);
+}
+
+/* ─── Text helpers ───────────────────────────────────── */
+.uppercase {
+	text-transform: uppercase;
+}
+
+.center {
+	text-align: center;
+}
+
+.left {
+	text-align: left;
+}
+
+.no-tracking {
+	letter-spacing: 0;
+}
+
+.bold {
+	font-weight: 700;
+}
+
+/* ─── Inline link ────────────────────────────────────── */
+.inline-link {
+	color: var(--c-text);
+	text-decoration: none;
+	border-bottom: 1px solid currentColor;
+	padding-bottom: 1px;
+	transition: color var(--duration-default) ease;
+}
+
+.inline-link:hover {
+	color: var(--c-accent);
+}
+
+/* ─── Buttons ────────────────────────────────────────── */
+.btn {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--sp-6);
+	background: var(--c-text);
+	border: none;
+	color: var(--c-white);
+	font-family: var(--font-en);
+	font-weight: 500;
+	font-size: var(--fs-sm);
+	letter-spacing: 0;
+	line-height: var(--lh-en);
+	padding: 18px 44px;
+	text-decoration: none;
+	cursor: pointer;
+	transition: background var(--duration-default) ease;
+}
+
+.btn:hover {
+	background: var(--c-accent);
+}
+
+.btn-accent {
+	background: var(--c-accent);
+}
+
+.btn-accent:hover {
+	background: var(--c-deep);
+}
+
+.btn .arrow {
+	transition: transform var(--duration-default) ease;
+}
+
+.btn:hover .arrow {
+	transform: translateX(4px);
+}
+
+/* ─── Section utility ────────────────────────────────── */
+.section {
+	padding-top: var(--sp-12);
+	padding-bottom: var(--sp-12);
+}
+
+@media (max-width: 540px) {
+	.section {
+		padding-top: var(--sp-11);
+		padding-bottom: var(--sp-11);
+	}
+}
+
+/* ─── Hairline rule ──────────────────────────────────── */
+.rule {
+	width: 100%;
+	height: 1px;
+	background: var(--c-line);
+	border: none;
+}
