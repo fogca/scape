@@ -9,6 +9,10 @@ export function setLenis(l: Lenis | null) {
 	instance = l;
 }
 
+export function getLenis() {
+	return instance;
+}
+
 /** Lock scrolling and snap to the top. */
 export function lockScroll() {
 	instance?.scrollTo(0, { immediate: true });

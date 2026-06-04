@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { afterNavigate } from '$app/navigation';
 	import { browser } from '$app/environment';
 	import { page } from '$app/state';
 	import Lenis from 'lenis';
 	import gsap from 'gsap';
 	import { ScrollTrigger } from 'gsap/ScrollTrigger';
-	import { setLenis } from '$lib/scroll';
+	import { setLenis, getLenis } from '$lib/scroll';
 	import Header from '$lib/components/Header.svelte';
 
 	let { children } = $props();
@@ -18,6 +19,10 @@
 		'Japanese scape whisky, distilled in Miyazaki. A single-farm distillery capturing the landscape, sound and time of Japan in every bottle.';
 
 	const canonical = $derived(`${SITE_URL}${page.url.pathname}`);
+
+	afterNavigate(() => {
+		getLenis()?.scrollTo(0, { immediate: true });
+	});
 
 	onMount(() => {
 		if (!browser) return;
