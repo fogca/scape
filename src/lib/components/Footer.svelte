@@ -16,8 +16,8 @@
 				<Wordmark />
 			</a>
 			<p class="footer-tagline">
-				Japanese landscape whisky,<br />
-				distilled in Miyazaki.
+				Japanese scape whisky,<br />
+				composed in harmony.
 			</p>
 		</div>
 
@@ -45,7 +45,8 @@
 		background: var(--c-dark);
 		color: var(--c-white);
 		padding: 80px 0 var(--sp-5);
-		margin-top: 0;
+		/* Full-bleed — cancel the horizontal padding applied on <main> */
+		margin: 0 calc(var(--padding) * -1);
 	}
 
 	.footer :global(*) {

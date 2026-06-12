@@ -5,6 +5,7 @@
 	import { ScrollTrigger } from 'gsap/ScrollTrigger';
 	import Wordmark from '$lib/components/Wordmark.svelte';
 	import HeroProductCard from '$lib/components/HeroProductCard.svelte';
+	import Footer from '$lib/components/Footer.svelte';
 	import { products } from '$lib/data/products';
 
 	const featuredProduct = products[0];
@@ -91,34 +92,93 @@
 			'+=0.3'
 		);
 
-		// ─── Parallax on bleed sections (Product / Distillery / Landscape) ───
+		// ─── Feature sections (Product / Distillery / Landscape) ───
+		// Anse-style: each section is a 220vh window (clip-path) over a fixed
+		// 100vh layer. The first image grows from small to full-bleed as it
+		// enters, snaps at full, then text scrubs in during the pinned dwell.
+		// On exit the outgoing image inflates from the bottom edge while the
+		// next section's window slides over it.
 		const scrollTriggers: ScrollTrigger[] = [];
-		const bleedSections = document.querySelectorAll('.bleed-section');
-		bleedSections.forEach((section) => {
-			const bg = section.querySelector('.bleed-bg');
-			if (!bg) return;
-			const st = gsap.fromTo(
-				bg,
-				{ yPercent: -12 },
-				{
-					yPercent: 12,
-					ease: 'none',
+		const features = gsap.utils.toArray<HTMLElement>('.feature');
+		features.forEach((section, i) => {
+			const frame = section.querySelector<HTMLElement>('.feature-frame');
+			const img = section.querySelector<HTMLElement>('.feature-img');
+			const textItems = gsap.utils.toArray<HTMLElement>(
+				section.querySelectorAll('.feature-text > *')
+			);
+
+			// First feature only — grow from small frame to full-bleed, snap at full
+			if (i === 0 && frame) {
+				const grow = gsap.fromTo(
+					frame,
+					{ width: '62vw', height: '62vh' },
+					{
+						width: '100vw',
+						height: '100vh',
+						ease: 'none',
+						scrollTrigger: {
+							trigger: section,
+							start: 'top bottom',
+							end: 'top top',
+							scrub: true,
+							snap: {
+								snapTo: (value) => (value > 0.82 ? 1 : value),
+								duration: { min: 0.2, max: 0.6 },
+								ease: 'power1.inOut'
+							},
+							invalidateOnRefresh: true
+						}
+					}
+				);
+				if (grow.scrollTrigger) scrollTriggers.push(grow.scrollTrigger);
+			}
+
+			// Text scrubs in while the layer is pinned (the dwell height)
+			if (textItems.length) {
+				const textTl = gsap.timeline({
 					scrollTrigger: {
 						trigger: section,
-						start: 'top bottom',
-						end: 'bottom top',
+						start: 'top top',
+						end: () => `+=${section.offsetHeight - window.innerHeight}`,
 						scrub: true,
 						invalidateOnRefresh: true
 					}
-				}
-			).scrollTrigger;
-			if (st) scrollTriggers.push(st);
+				});
+				textTl.fromTo(
+					textItems,
+					{ opacity: 0, y: 24 },
+					{ opacity: 1, y: 0, stagger: 0.18, duration: 0.6, ease: 'power2.out' }
+				);
+				// Tail dwell so the text rests fully visible before the exit
+				textTl.to({}, { duration: 0.5 });
+				if (textTl.scrollTrigger) scrollTriggers.push(textTl.scrollTrigger);
+			}
+
+			// Exit parallax — bottom-origin inflate while the clip pulls away
+			if (img) {
+				const exit = gsap.fromTo(
+					img,
+					{ scale: 1 },
+					{
+						scale: 1.18,
+						ease: 'none',
+						scrollTrigger: {
+							trigger: section,
+							start: 'bottom bottom',
+							end: 'bottom top',
+							scrub: true,
+							invalidateOnRefresh: true
+						}
+					}
+				);
+				if (exit.scrollTrigger) scrollTriggers.push(exit.scrollTrigger);
+			}
 		});
 
 		// Refresh once images have loaded so triggers use final layout heights
 		const refreshOnLoad = () => ScrollTrigger.refresh();
 		window.addEventListener('load', refreshOnLoad);
-		document.querySelectorAll('.bleed-bg').forEach((img) => {
+		document.querySelectorAll('.feature-img').forEach((img) => {
 			const el = img as HTMLImageElement;
 			if (!el.complete) {
 				el.addEventListener('load', refreshOnLoad, { once: true });
@@ -128,7 +188,6 @@
 		// ─── Fade-up on scroll for content blocks ───
 		const fadeUpGroups: { selector: string; stagger?: number; start?: string }[] = [
 			{ selector: '.concept-text > *', stagger: 0.12 },
-			{ selector: '.bleed-content > *', stagger: 0.12 },
 			{ selector: '.cask-inner > *', stagger: 0.08, start: 'top 80%' },
 			{ selector: '.gallery-item', stagger: 0.15 },
 			{ selector: '.contact-inner > *', stagger: 0.1 }
@@ -205,7 +264,7 @@
 	</div>
 
 	<p class="hero-tagline hero-tagline-bottom" bind:this={taglineBottom}>
-		Japanese landscape whisky
+		Japanese scape whisky<br />composed in harmony
 	</p>
 
 	<div class="hero-product-slot" bind:this={productCard}>
@@ -245,72 +304,84 @@
 <!-- ─────────────────────────────────────────────────────
      PRODUCT — bottle, full-bleed
      ───────────────────────────────────────────────────── -->
-<section id="product" class="bleed-section">
-	<img class="bleed-bg" src="/images/bottle-gm26.jpg" alt="Scape Whisky GM26 bottle" />
-	<div class="bleed-veil"></div>
-	<div class="bleed-content">
-		<p class="eyebrow accent">Product</p>
-		<h2 class="bleed-title">
-			A bottle that<br />
-			holds the land.
-		</h2>
-		<p class="body white-body">
-			Scapeは一樽ごとに別の物語を持っています。畑単位の大麦、樽の個性、季節の温度差——その全てが、ひと瓶のなかで重なり合い、土地そのものの輪郭を描き出します。
-		</p>
-		<p class="body white-body">
-			リリースされる一本一本に、その背景となった農場、樽、収穫年、蒸留と瓶詰めの記録が刻まれます。同じものは二度とつくれない。だからこそ、一本がそのまま、ひとつの風景になる。
-		</p>
-		<p class="body white-body">
-			シングルファームシリーズは、年間50樽という極めて限られた生産から、ファインダイニングおよび直販でのみご紹介しています。
-		</p>
+<section id="product" class="feature">
+	<div class="feature-layer">
+		<div class="feature-frame">
+			<img class="feature-img" src="/images/bottle-gm26.jpg" alt="Scape Whisky GM26 bottle" />
+			<div class="feature-veil"></div>
+		</div>
+		<div class="feature-text">
+			<p class="eyebrow accent">Product</p>
+			<h2 class="feature-title">
+				A bottle that<br />
+				holds the land.
+			</h2>
+			<p class="body white-body">
+				Scapeは一樽ごとに別の物語を持っています。畑単位の大麦、樽の個性、季節の温度差——その全てが、ひと瓶のなかで重なり合い、土地そのものの輪郭を描き出します。
+			</p>
+			<p class="body white-body">
+				リリースされる一本一本に、その背景となった農場、樽、収穫年、蒸留と瓶詰めの記録が刻まれます。同じものは二度とつくれない。だからこそ、一本がそのまま、ひとつの風景になる。
+			</p>
+			<p class="body white-body">
+				シングルファームシリーズは、年間50樽という極めて限られた生産から、ファインダイニングおよび直販でのみご紹介しています。
+			</p>
+		</div>
 	</div>
 </section>
 
 <!-- ─────────────────────────────────────────────────────
      DISTILLERY — copper still, full-bleed
      ───────────────────────────────────────────────────── -->
-<section id="distillery" class="bleed-section">
-	<img class="bleed-bg" src="/images/gallery-maturation.jpg" alt="Copper pot still" />
-	<div class="bleed-veil"></div>
-	<div class="bleed-content">
-		<p class="eyebrow accent">Distillery</p>
-		<h2 class="bleed-title">
-			A small distillery,<br />
-			rooted in the land.
-		</h2>
+<section id="distillery" class="feature">
+	<div class="feature-layer">
+		<div class="feature-frame">
+			<img class="feature-img" src="/images/gallery-maturation.jpg" alt="Copper pot still" />
+			<div class="feature-veil"></div>
+		</div>
+		<div class="feature-text">
+			<p class="eyebrow accent">Distillery</p>
+			<h2 class="feature-title">
+				A small distillery,<br />
+				rooted in the land.
+			</h2>
 		<p class="body white-body">
 			宮崎県都城市。霧島山系の懐に佇む小さな蒸留所で、私たちはウイスキーをつくっています。九州南部の温暖な気候、火山性の土壌、そして山々から地下を通って湧き出る伏流水。土地そのものが、ここでしか生まれない味を育てます。
 		</p>
 		<p class="body white-body">
 			蒸留に使うのは、銅のポットスチルが2基。仕込みから蒸留、樽詰めに至るまで、全ての工程を手仕事で行います。年間蒸留量は10,000リットル、樽にしてわずか50本。規模を追わず、ひと樽ごとの完成度を追求するスタイルです。
 		</p>
-		<p class="body white-body">
-			大きなプラントが効率を求めるのと反対の方向に、私たちは小ささを選びました。小さいから、畑単位で蒸留できる。小さいから、樽ごとに個性を残せる。
-		</p>
+			<p class="body white-body">
+				大きなプラントが効率を求めるのと反対の方向に、私たちは小ささを選びました。小さいから、畑単位で蒸留できる。小さいから、樽ごとに個性を残せる。
+			</p>
+		</div>
 	</div>
 </section>
 
 <!-- ─────────────────────────────────────────────────────
      LANDSCAPE — Kirishima, full-bleed
      ───────────────────────────────────────────────────── -->
-<section id="landscape" class="bleed-section">
-	<img class="bleed-bg" src="/images/landscape-miyazaki.jpg" alt="Kirishima mountain forest" />
-	<div class="bleed-veil"></div>
-	<div class="bleed-content">
-		<p class="eyebrow accent">Landscape</p>
-		<h2 class="bleed-title">
-			From the forest<br />
-			of Kirishima.
-		</h2>
+<section id="landscape" class="feature">
+	<div class="feature-layer">
+		<div class="feature-frame">
+			<img class="feature-img" src="/images/landscape-miyazaki.jpg" alt="Kirishima mountain forest" />
+			<div class="feature-veil"></div>
+		</div>
+		<div class="feature-text">
+			<p class="eyebrow accent">Landscape</p>
+			<h2 class="feature-title">
+				From the forest<br />
+				of Kirishima.
+			</h2>
 		<p class="body white-body">
 			霧島連山の麓には、何百年もの時間が積み重なった森が広がっています。火山が育てた肥沃な土、苔むした岩、地中を旅する水。その全てが、Scapeの仕込み水を生み出します。
 		</p>
 		<p class="body white-body">
 			蒸留所を取り囲むのは、宮崎の自然そのもの。空気の湿度、風の匂い、夏の蝉の声、冬の朝霧——ウイスキーは樽の中で、それらの全てを少しずつ吸い込みながら熟成していきます。
 		</p>
-		<p class="body white-body">
-			土地に立たなければ生まれない一本がある。それを伝えることが、ScapeというブランドのRaisonとなります。
-		</p>
+			<p class="body white-body">
+				土地に立たなければ生まれない一本がある。それを伝えることが、ScapeというブランドのRaisonとなります。
+			</p>
+		</div>
 	</div>
 </section>
 
@@ -385,6 +456,8 @@
 		<a href="mailto:info@scapewhisky.com" class="contact-link">info@scapewhisky.com →</a>
 	</div>
 </section>
+
+<Footer />
 
 <style>
 	/* ───── HERO ───── */
@@ -465,6 +538,8 @@
 
 	.hero-tagline-bottom {
 		bottom: 28px;
+		text-align: center;
+		white-space: normal;
 	}
 
 	/* Hero product card slot */
@@ -525,7 +600,7 @@
 	.marquee-track {
 		display: inline-flex;
 		white-space: nowrap;
-		animation: marquee-scroll 28s linear infinite;
+		animation: marquee-scroll 80s linear infinite;
 		will-change: transform;
 	}
 
@@ -555,48 +630,79 @@
 		}
 	}
 
-	/* ───── BLEED SECTIONS (Product / Distillery / Landscape) ───── */
-	.bleed-section {
+	/* ───── FEATURE SECTIONS (Product / Distillery / Landscape) ─────
+	   Anse-style window reveal: the section is a tall clip window
+	   (clip-path creates the moving viewport) over a fixed 100vh layer.
+	   The extra height beyond 100vh is the pinned dwell that drives
+	   the text scrub. */
+	.feature {
 		position: relative;
-		height: 100vh;
+		height: 220vh;
 		margin-left: calc(var(--padding) * -1);
 		margin-right: calc(var(--padding) * -1);
-		padding: var(--sp-11) var(--padding);
-		display: flex;
-		align-items: flex-end;
-		justify-content: flex-start;
+		clip-path: inset(0);
 		color: var(--c-white);
+	}
+
+	.feature-layer {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100vh;
+	}
+
+	/* Image frame — GSAP grows the first feature from 62vw/62vh to full */
+	.feature-frame {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: 100vw;
+		height: 100vh;
 		overflow: hidden;
 	}
 
-	.bleed-bg {
-		position: absolute;
-		top: -15%;
-		left: 0;
+	.feature-img {
 		width: 100%;
-		height: 130%;
+		height: 100%;
 		object-fit: cover;
-		z-index: 0;
+		/* Exit parallax inflates from the bottom edge (scale set per frame) */
+		transform-origin: 50% 100%;
 		will-change: transform;
 	}
 
-	.bleed-veil {
+	.feature-veil {
 		position: absolute;
 		inset: 0;
 		background: linear-gradient(180deg, rgba(40, 22, 13, 0) 40%, rgba(40, 22, 13, 0.65) 100%);
-		z-index: 1;
 	}
 
-	.bleed-content {
-		position: relative;
-		z-index: 2;
+	.feature-text {
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		padding: var(--sp-11) var(--padding);
 		max-width: 75%;
 		display: flex;
 		flex-direction: column;
 		gap: var(--sp-4);
+		z-index: 2;
 	}
 
-	.bleed-title {
+	/* Scrubbed by scroll while the layer is pinned (styles set per frame) */
+	.feature-text > * {
+		opacity: 0;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.feature-text > * {
+			opacity: 1;
+		}
+	}
+
+	.feature-title {
 		font-family: var(--font-en);
 		font-weight: 900;
 		font-size: 20px;
@@ -607,7 +713,7 @@
 	}
 
 	@media (min-width: 1024px) {
-		.bleed-content {
+		.feature-text {
 			max-width: 56%;
 		}
 	}
@@ -781,6 +887,13 @@
 		flex-direction: column;
 		gap: var(--sp-5);
 		align-items: flex-start;
+	}
+
+	/* Pin text to cream explicitly — global helpers must not leak orange here */
+	.contact-inner :global(.eyebrow),
+	.contact-inner :global(.h2),
+	.contact-inner :global(.body) {
+		color: var(--c-white);
 	}
 
 	.contact-link {

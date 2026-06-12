@@ -10,9 +10,8 @@
 	let taglineTop: HTMLParagraphElement;
 	let taglineBottom: HTMLParagraphElement;
 	let imageFrame: HTMLDivElement;
-	let img1: HTMLImageElement;
-	let img2: HTMLImageElement;
-	let img3: HTMLImageElement;
+	let panelForest: HTMLDivElement;
+	let panelOrange: HTMLDivElement;
 
 	onMount(() => {
 		if (!browser) return;
@@ -28,8 +27,8 @@
 		lockScroll();
 
 		gsap.set([wordmark, taglineTop, taglineBottom, imageFrame], { opacity: 0 });
-		gsap.set([img2, img3], { opacity: 0 });
-		gsap.set(img1, { opacity: 1 });
+		gsap.set(panelOrange, { opacity: 0 });
+		gsap.set(panelForest, { opacity: 1 });
 		gsap.set(imageFrame, { width: '75vw', height: '75vh' });
 
 		const tl = gsap.timeline({
@@ -48,19 +47,15 @@
 		// Phase 1 — orange wordmark fades in (rotated 90deg in center)
 		tl.to(wordmark, { opacity: 1, duration: 0.8 });
 
-		// Phase 3 — image fades in at 75vw/75vh, wordmark turns white at the same moment
+		// Phase 3 — forest-green panel fades in at 75vw/75vh; wordmark stays orange on green
 		tl.to(imageFrame, { opacity: 1, duration: 1.3 }, '+=0.3');
-		tl.to(wordmark, { color: '#FFF1DC', duration: 0.8, ease: 'power1.inOut' }, '<');
 
-		// Phase 4 — image cross-fade 1 → 2
-		tl.to(img1, { opacity: 0, duration: 0.7 }, '+=0.6');
-		tl.to(img2, { opacity: 1, duration: 0.7 }, '<');
+		// Phase 4 — cross-fade green → orange; wordmark turns white at the same moment
+		tl.to(panelForest, { opacity: 0, duration: 0.7 }, '+=0.6');
+		tl.to(panelOrange, { opacity: 1, duration: 0.7 }, '<');
+		tl.to(wordmark, { color: '#FFF1DC', duration: 0.7, ease: 'power1.inOut' }, '<');
 
-		// Phase 5 — image cross-fade 2 → 3
-		tl.to(img2, { opacity: 0, duration: 0.7 }, '+=0.6');
-		tl.to(img3, { opacity: 1, duration: 0.7 }, '<');
-
-		// Phase 6 — smoothly expand image to 100vw/100vh
+		// Phase 6 — smoothly expand panel to 100vw/100vh
 		tl.to(
 			imageFrame,
 			{
@@ -116,14 +111,8 @@
 	<div class="hero-curtain"></div>
 
 	<div class="hero-image-frame" bind:this={imageFrame}>
-		<img src="/images/story-barley.jpg" alt="" bind:this={img1} class="hero-img" />
-		<img src="/images/landscape-miyazaki.jpg" alt="" bind:this={img2} class="hero-img" />
-		<img
-			src="/images/hero-bottle.jpg"
-			alt="Scape whisky bottle in the Kirishima landscape"
-			bind:this={img3}
-			class="hero-img"
-		/>
+		<div class="hero-panel panel-forest" bind:this={panelForest}></div>
+		<div class="hero-panel panel-orange" bind:this={panelOrange}></div>
 	</div>
 
 	<p class="hero-tagline hero-tagline-top" bind:this={taglineTop}>
@@ -135,7 +124,7 @@
 	</div>
 
 	<p class="hero-tagline hero-tagline-bottom" bind:this={taglineBottom}>
-		Japanese landscape whisky
+		Japanese scape whisky<br />composed in harmony
 	</p>
 </section>
 
@@ -198,7 +187,7 @@
 		z-index: 0;
 	}
 
-	/* Image frame — animated from 75vw/75vh to 100vw/100vh; stacks 3 images */
+	/* Brand-color panel — animated from 75vw/75vh to 100vw/100vh; stacks 3 color layers */
 	.hero-image-frame {
 		position: absolute;
 		top: 50%;
@@ -208,12 +197,17 @@
 		z-index: 1;
 	}
 
-	.hero-img {
+	.hero-panel {
 		position: absolute;
 		inset: 0;
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
+	}
+
+	.panel-forest {
+		background: #00320b;
+	}
+
+	.panel-orange {
+		background: var(--c-accent);
 	}
 
 	.hero-wordmark {
@@ -258,6 +252,8 @@
 
 	.hero-tagline-bottom {
 		bottom: 28px;
+		text-align: center;
+		white-space: normal;
 	}
 
 	/* ───── CONCEPT ───── */
@@ -309,7 +305,7 @@
 	.marquee-track {
 		display: inline-flex;
 		white-space: nowrap;
-		animation: marquee-scroll 28s linear infinite;
+		animation: marquee-scroll 80s linear infinite;
 		will-change: transform;
 	}
 
