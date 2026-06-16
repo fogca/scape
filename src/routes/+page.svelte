@@ -137,15 +137,16 @@
 <section id="concept" class="concept">
 	<div class="concept-text">
 		<p class="concept-body bold">
-			「Scape（スケープ）」は、日本の風土と、音や時間、そして職人の手仕事<br />
-			——そのすべての気配を、一本に宿すジャパニーズウイスキー。
+			「Scape（スケープ）」は、日本の風土と、音や時間、そして職人の手仕事<br />——そのすべての気配を、一本に宿すジャパニーズウイスキー。
 		</p>
 		<p class="concept-body bold">
 			原料となる大麦はすべて日本のもの。<br />
-			北の大地で育ったものも、南の風を受けたものも、山々に囲まれて育ったものも、それぞれの土地の気配を静かにまとっている。
+			北の大地で育ったものも、南の風を受けたものも、山々に囲まれて育ったものも、<br />
+			それぞれの土地の気配を静かにまとっている。
 		</p>
 		<p class="concept-body bold">
-			土地が変われば、個性が変わる。その発見が、この一本になる。これは、日本の気配を旅すること。
+			土地が変われば、個性が変わる。その発見が、この一本になる。<br />
+			これは、日本の気配を旅すること。
 		</p>
 		<p class="concept-body bold">
 			つくる私たちも、飲むあなたも、まだ見ぬ景色へ。
@@ -300,6 +301,13 @@
 		letter-spacing: 0;
 		color: var(--c-text);
 		text-align: center;
+	}
+
+	/* PC keeps the authored line breaks; SP lets the text flow naturally. */
+	@media (max-width: 768px) {
+		.concept-body br {
+			display: none;
+		}
 	}
 
 	.statement {
