@@ -272,7 +272,7 @@
 
 	/* ───── CONCEPT ───── */
 	.concept {
-		padding-top: var(--sp-12);
+		padding-top: var(--sp-9);
 		padding-bottom: 0;
 		display: flex;
 		flex-direction: column;

@@ -33,7 +33,7 @@
 /* ─── Tokens ─────────────────────────────────────────── */
 :root {
 	/* Color */
-	--c-bg: #fff1dc;
+	--c-bg: #f3eee8;
 	--c-peated-brown: #4a2613;
 	--c-text: var(--c-peated-brown);
 	--c-mute: rgba(74, 38, 19, 0.6);
@@ -115,6 +115,12 @@
 	margin: 0;
 	padding: 0;
 	box-sizing: border-box;
+}
+
+/* Paint the root too — keeps overscroll / inertial bounce on mobile in-brand
+   instead of revealing white behind the body. */
+html {
+	background: var(--c-bg);
 }
 
 body {
