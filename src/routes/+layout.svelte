@@ -14,12 +14,12 @@
 	// Production origin — used for canonical + absolute OG/Twitter image URLs.
 	const SITE_URL = 'https://scapewhisky.pages.dev';
 	const OG_IMAGE = `${SITE_URL}/OGP.png`;
-	const TITLE = 'Scape Whisky — Japanese Landscape Whisky';
-	const DESCRIPTION =
-		'Japanese scape whisky, distilled in Miyazaki. A single-farm distillery capturing the landscape, sound and time of Japan in every bottle.';
+	// Teaser phase — every page presents the brand tagline as title + description.
+	const TITLE = 'Japanese scape whisky composed in harmony';
+	const DESCRIPTION = 'Japanese scape whisky composed in harmony';
 
-	// Per-page SEO comes from each route's load() (page.data); fall back to
-	// the site-wide defaults so every page has a single, correct set of tags.
+	// Per-page SEO may still override via load() (page.data); otherwise every
+	// page falls back to the unified tagline above.
 	const pageTitle = $derived(page.data.title ?? TITLE);
 	const pageDescription = $derived(page.data.description ?? DESCRIPTION);
 	const canonical = $derived(`${SITE_URL}${page.url.pathname}`);
