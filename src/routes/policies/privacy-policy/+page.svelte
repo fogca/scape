@@ -3,18 +3,11 @@
 	const UPDATED = '2026年6月1日';
 </script>
 
-<svelte:head>
-	<title>Privacy Policy — Scape Whisky</title>
-	<meta
-		name="description"
-		content="Scape Whisky のプライバシーポリシー。個人情報の取得・利用目的・管理・お問い合わせ窓口について。"
-	/>
-</svelte:head>
 
 <article class="legalpage">
 	<header class="legalpage-head">
 		<p class="eyebrow">Privacy Policy</p>
-		<h1 class="legalpage-title">プライバシーポリシー</h1>
+		<h1 class="legalpage-title">プライバシー<br class="sp" />ポリシー</h1>
 		<p class="legalpage-lead">
 			Scape Whisky（以下「当ブランド」といいます）は、お客様の個人情報を適切に保護することを社会的責務と考え、以下の方針に基づき個人情報を取り扱います。
 		</p>
@@ -99,8 +92,6 @@
 	</section>
 
 	<p class="legalpage-updated">最終改定日：{UPDATED}</p>
-
-	<a href="/" class="legalpage-back">← Back to home</a>
 </article>
 
 <style>
@@ -108,7 +99,13 @@
 		max-width: 720px;
 		margin: 0 auto;
 		padding-top: 120px;
-		padding-bottom: var(--sp-12);
+		padding-bottom: var(--sp-5);
+	}
+
+	@media (max-width: 540px) {
+		.legalpage {
+			margin-inline: 0;
+		}
 	}
 
 	.legalpage-head {
@@ -125,12 +122,28 @@
 	}
 
 	.legalpage-title {
-		font-family: var(--font-en);
-		font-weight: 900;
-		font-size: clamp(28px, 5vw, 48px);
-		line-height: 1.15;
+		font-family: var(--font-ja);
+		font-weight: 700;
+		font-size: 48px;
+		line-height: 1.4;
+		letter-spacing: 0;
 		color: var(--c-text);
 		margin: 0 0 var(--sp-6);
+	}
+
+	/* SP-only line break inside the title */
+	.legalpage-title br.sp {
+		display: none;
+	}
+
+	@media (max-width: 540px) {
+		.legalpage-title {
+			font-size: 40px;
+		}
+
+		.legalpage-title br.sp {
+			display: inline;
+		}
 	}
 
 	.legalpage-lead {
@@ -197,20 +210,5 @@
 		font-size: 11px;
 		color: var(--c-mute);
 		margin: var(--sp-10) 0 var(--sp-8);
-	}
-
-	.legalpage-back {
-		font-family: var(--font-en);
-		font-weight: 500;
-		font-size: 13px;
-		color: var(--c-text);
-		text-decoration: none;
-		border-bottom: 1px solid var(--c-line);
-		padding-bottom: 4px;
-		transition: opacity var(--duration-default) ease;
-	}
-
-	.legalpage-back:hover {
-		opacity: 0.6;
 	}
 </style>

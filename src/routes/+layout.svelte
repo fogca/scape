@@ -18,14 +18,32 @@
 	const DESCRIPTION =
 		'Japanese scape whisky, distilled in Miyazaki. A single-farm distillery capturing the landscape, sound and time of Japan in every bottle.';
 
+	// Per-page SEO comes from each route's load() (page.data); fall back to
+	// the site-wide defaults so every page has a single, correct set of tags.
+	const pageTitle = $derived(page.data.title ?? TITLE);
+	const pageDescription = $derived(page.data.description ?? DESCRIPTION);
 	const canonical = $derived(`${SITE_URL}${page.url.pathname}`);
 
+	// Teaser-phase bottom bar — shared on every page. /full has its own full
+	// Footer (the future site footer), so the minimal bar is skipped there.
+	const showFoot = $derived(page.url.pathname !== '/full');
+
 	afterNavigate(() => {
-		getLenis()?.scrollTo(0, { immediate: true });
+		// Always land at the top on every navigation — including browser
+		// back/forward, where scroll would otherwise be restored at the old
+		// position and freeze there under the hero's overflow:hidden lock.
+		window.scrollTo(0, 0);
+		getLenis()?.scrollTo(0, { immediate: true, force: true });
 	});
 
 	onMount(() => {
 		if (!browser) return;
+
+		// Own scroll restoration globally so the browser never restores a
+		// previous position on back/forward (pages must not flip this back).
+		if ('scrollRestoration' in history) {
+			history.scrollRestoration = 'manual';
+		}
 
 		gsap.registerPlugin(ScrollTrigger);
 
@@ -54,8 +72,8 @@
 </script>
 
 <svelte:head>
-	<title>{TITLE}</title>
-	<meta name="description" content={DESCRIPTION} />
+	<title>{pageTitle}</title>
+	<meta name="description" content={pageDescription} />
 	<meta
 		name="keywords"
 		content="Japanese scape whisky, scape whisky, Japanese whisky, single farm whisky, Miyazaki distillery, ジャパニーズウイスキー"
@@ -65,8 +83,8 @@
 	<!-- Open Graph -->
 	<meta property="og:type" content="website" />
 	<meta property="og:site_name" content="Scape Whisky" />
-	<meta property="og:title" content={TITLE} />
-	<meta property="og:description" content={DESCRIPTION} />
+	<meta property="og:title" content={pageTitle} />
+	<meta property="og:description" content={pageDescription} />
 	<meta property="og:url" content={canonical} />
 	<meta property="og:locale" content="ja_JP" />
 	<meta property="og:image" content={OG_IMAGE} />
@@ -76,8 +94,8 @@
 
 	<!-- Twitter -->
 	<meta name="twitter:card" content="summary_large_image" />
-	<meta name="twitter:title" content={TITLE} />
-	<meta name="twitter:description" content={DESCRIPTION} />
+	<meta name="twitter:title" content={pageTitle} />
+	<meta name="twitter:description" content={pageDescription} />
 	<meta name="twitter:image" content={OG_IMAGE} />
 
 	<meta name="theme-color" content="#fff1dc" />
@@ -87,11 +105,66 @@
 
 <main>
 	{@render children()}
+
+	{#if showFoot}
+		<div class="teaser-foot">
+			<ul class="teaser-legal">
+				<li><a href="/pages/company">Company</a></li>
+				<li><a href="/pages/legal">Legal</a></li>
+				<li><a href="/policies/privacy-policy">Privacy</a></li>
+			</ul>
+			<p class="teaser-copy">© scape whisky, 2026</p>
+		</div>
+	{/if}
 </main>
 
 <style>
 	main {
 		display: flex;
 		flex-direction: column;
+		/* Short pages still push the shared bottom bar to the viewport floor */
+		min-height: 100svh;
+	}
+
+	/* ───── Shared bottom bar ───── */
+	.teaser-foot {
+		margin-top: auto;
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		gap: var(--sp-5);
+		padding: var(--sp-6) 0 var(--sp-5);
+		opacity: 0.5;
+	}
+
+	.teaser-legal {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		gap: var(--sp-5);
+	}
+
+	.teaser-legal a,
+	.teaser-copy {
+		font-family: var(--font-en);
+		font-weight: 400;
+		font-size: 10.5px;
+		letter-spacing: 0;
+		color: var(--c-text);
+	}
+
+	.teaser-legal a {
+		text-decoration: none;
+		transition: opacity var(--duration-default) ease;
+	}
+
+	.teaser-legal a:hover {
+		opacity: 0.6;
+	}
+
+	.teaser-copy {
+		margin: 0;
+		white-space: nowrap;
 	}
 </style>

@@ -34,7 +34,8 @@
 :root {
 	/* Color */
 	--c-bg: #fff1dc;
-	--c-text: #4a2613;
+	--c-peated-brown: #4a2613;
+	--c-text: var(--c-peated-brown);
 	--c-mute: rgba(74, 38, 19, 0.6);
 	--c-line: rgba(74, 38, 19, 0.2);
 	--c-accent: #da510c;
@@ -98,6 +99,8 @@
 /* SP overrides */
 @media (max-width: 540px) {
 	:root {
+		/* Tighter side gutters on mobile → a touch more content width */
+		--padding: 18px;
 		--fs-h1: 48px;
 		--fs-h2: 32px;
 		--fs-h3: 22px;
@@ -118,7 +121,7 @@ body {
 	background: var(--c-bg);
 	color: var(--c-text);
 	font-family: var(--font-ja);
-	font-weight: 400;
+	font-weight: 500;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 }

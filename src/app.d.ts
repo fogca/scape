@@ -4,7 +4,11 @@ declare global {
 	namespace App {
 		// interface Error {}
 		// interface Locals {}
-		// interface PageData {}
+		interface PageData {
+			// Per-page SEO overrides; the layout falls back to site defaults.
+			title?: string;
+			description?: string;
+		}
 		// interface PageState {}
 		// interface Platform {}
 	}

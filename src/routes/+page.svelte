@@ -12,14 +12,13 @@
 	let imageFrame: HTMLDivElement;
 	let panelForest: HTMLDivElement;
 	let panelOrange: HTMLDivElement;
+	let panelImage: HTMLImageElement;
 
 	onMount(() => {
 		if (!browser) return;
 
-		// Force scroll to top before locking — incoming nav may preserve previous scroll Y
-		if ('scrollRestoration' in history) {
-			history.scrollRestoration = 'manual';
-		}
+		// Force scroll to top before locking — incoming nav may preserve previous scroll Y.
+		// (scrollRestoration is kept 'manual' globally in +layout.svelte.)
 		window.scrollTo(0, 0);
 		document.body.style.overflow = 'hidden';
 		document.documentElement.style.overflow = 'hidden';
@@ -27,7 +26,7 @@
 		lockScroll();
 
 		gsap.set([wordmark, taglineTop, taglineBottom, imageFrame], { opacity: 0 });
-		gsap.set(panelOrange, { opacity: 0 });
+		gsap.set([panelOrange, panelImage], { opacity: 0 });
 		gsap.set(panelForest, { opacity: 1 });
 		gsap.set(imageFrame, { width: '75vw', height: '75vh' });
 
@@ -37,9 +36,6 @@
 				document.body.style.overflow = '';
 				document.documentElement.style.overflow = '';
 				unlockScroll();
-				if ('scrollRestoration' in history) {
-					history.scrollRestoration = 'auto';
-				}
 				requestAnimationFrame(() => ScrollTrigger.refresh());
 			}
 		});
@@ -54,6 +50,10 @@
 		tl.to(panelForest, { opacity: 0, duration: 0.7 }, '+=0.6');
 		tl.to(panelOrange, { opacity: 1, duration: 0.7 }, '<');
 		tl.to(wordmark, { color: '#FFF1DC', duration: 0.7, ease: 'power1.inOut' }, '<');
+
+		// Phase 5 — cross-fade orange → product image; wordmark stays white
+		tl.to(panelOrange, { opacity: 0, duration: 0.7 }, '+=0.6');
+		tl.to(panelImage, { opacity: 1, duration: 0.7 }, '<');
 
 		// Phase 6 — smoothly expand panel to 100vw/100vh
 		tl.to(
@@ -94,9 +94,6 @@
 			document.body.style.overflow = '';
 			document.documentElement.style.overflow = '';
 			unlockScroll();
-			if ('scrollRestoration' in history) {
-				history.scrollRestoration = 'auto';
-			}
 			tl.kill();
 			scrollTriggers.forEach((st) => st.kill());
 		};
@@ -113,6 +110,12 @@
 	<div class="hero-image-frame" bind:this={imageFrame}>
 		<div class="hero-panel panel-forest" bind:this={panelForest}></div>
 		<div class="hero-panel panel-orange" bind:this={panelOrange}></div>
+		<img
+			class="hero-panel panel-image"
+			src="/images/scape_product.webp"
+			alt="Scape whisky bottles"
+			bind:this={panelImage}
+		/>
 	</div>
 
 	<p class="hero-tagline hero-tagline-top" bind:this={taglineTop}>
@@ -138,7 +141,7 @@
 			なにかの気配が形になるとき、そこにはいつも「scape」という言葉がある。
 		</p>
 		<p class="concept-body bold">
-			SCAPEは、日本の風土・音・時間・手仕事、そのすべての気配をウイスキーという形に宿す試みです。だから、大麦はすべて日本のものを。北の大地で育ったものも、南の風を受けたものも、山々に囲まれて育ったものも——それぞれの土地の気配を、静かにまとっている。
+			scapeは、日本の風土・音・時間・手仕事、そのすべての気配をウイスキーという形に宿す試みです。だから、大麦はすべて日本のものを。北の大地で育ったものも、南の風を受けたものも、山々に囲まれて育ったものも——それぞれの土地の気配を、静かにまとっている。
 		</p>
 		<p class="concept-body bold">
 			土地が変われば、個性が変わる。その発見が、この一本になる。これは、日本の気配を旅すること。つくる私たちも、飲むあなたも、まだ見ぬ景色へ。
@@ -160,14 +163,6 @@
 <!-- ─────────────────────────────────────────────────────
      BOTTOM BAR — legal links + copyright (replaces the footer)
      ───────────────────────────────────────────────────── -->
-<div class="teaser-foot">
-	<ul class="teaser-legal">
-		<li><a href="/privacy">Privacy</a></li>
-		<li><a href="/legal">Legal</a></li>
-	</ul>
-	<p class="teaser-copy">© scape whisky, 2026</p>
-</div>
-
 <style>
 	/* ───── HERO ───── */
 	.hero {
@@ -210,6 +205,19 @@
 		background: var(--c-accent);
 	}
 
+	.panel-image {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	@media (max-width: 768px) {
+		.panel-image {
+			/* Keep both bottles in frame on narrow screens */
+			object-position: 48% 50%;
+		}
+	}
+
 	.hero-wordmark {
 		position: absolute;
 		top: 50%;
@@ -243,6 +251,7 @@
 		font-size: 11px;
 		letter-spacing: 0;
 		white-space: nowrap;
+		/* Taglines sit over the hero image — ivory */
 		color: var(--c-white);
 	}
 
@@ -335,44 +344,4 @@
 		}
 	}
 
-	/* ───── BOTTOM BAR ───── */
-	.teaser-foot {
-		display: flex;
-		justify-content: space-between;
-		align-items: baseline;
-		gap: var(--sp-5);
-		padding: var(--sp-6) 0 var(--sp-5);
-		opacity: 0.5;
-	}
-
-	.teaser-legal {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-		display: flex;
-		gap: var(--sp-5);
-	}
-
-	.teaser-legal a,
-	.teaser-copy {
-		font-family: var(--font-en);
-		font-weight: 400;
-		font-size: 10.5px;
-		letter-spacing: 0;
-		color: var(--c-text);
-	}
-
-	.teaser-legal a {
-		text-decoration: none;
-		transition: opacity var(--duration-default) ease;
-	}
-
-	.teaser-legal a:hover {
-		opacity: 0.6;
-	}
-
-	.teaser-copy {
-		margin: 0;
-		white-space: nowrap;
-	}
 </style>

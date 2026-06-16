@@ -36,6 +36,11 @@
 	<div class="footer-divider" aria-hidden="true"></div>
 
 	<div class="footer-bottom">
+		<ul class="footer-legal">
+			<li><a href="/pages/company">Company</a></li>
+			<li><a href="/pages/legal">Legal</a></li>
+			<li><a href="/policies/privacy-policy">Privacy</a></li>
+		</ul>
 		<p class="footer-copy">© Scape Whisky, {YEAR}</p>
 	</div>
 </footer>
@@ -175,9 +180,31 @@
 		padding-inline: var(--padding);
 		display: flex;
 		flex-direction: row;
-		justify-content: flex-end;
+		justify-content: space-between;
 		align-items: baseline;
+		gap: var(--sp-5);
 		opacity: 0.5;
+	}
+
+	.footer-legal {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		gap: var(--sp-5);
+	}
+
+	.footer-legal a {
+		font-family: var(--font-en);
+		font-weight: 400;
+		font-size: 10.5px;
+		color: inherit;
+		text-decoration: none;
+		transition: opacity var(--duration-default) ease;
+	}
+
+	.footer-legal a:hover {
+		opacity: 0.6;
 	}
 
 	.footer-copy {

@@ -22,11 +22,9 @@
 	onMount(() => {
 		if (!browser) return;
 
-		// Force scroll to top before locking — incoming nav may preserve previous scroll Y
+		// Force scroll to top before locking — incoming nav may preserve previous scroll Y.
+		// (scrollRestoration is kept 'manual' globally in +layout.svelte.)
 		window.scrollTo(0, 0);
-		if ('scrollRestoration' in history) {
-			history.scrollRestoration = 'manual';
-		}
 		document.body.style.overflow = 'hidden';
 		document.documentElement.style.overflow = 'hidden';
 
@@ -41,9 +39,6 @@
 			onComplete: () => {
 				document.body.style.overflow = '';
 				document.documentElement.style.overflow = '';
-				if ('scrollRestoration' in history) {
-					history.scrollRestoration = 'auto';
-				}
 				// ScrollTrigger positions were calculated while scroll was locked
 				// (and images may not have loaded yet). Refresh now that the page
 				// is in its final state.
@@ -93,86 +88,100 @@
 		);
 
 		// ─── Feature sections (Product / Distillery / Landscape) ───
-		// Anse-style: each section is a 220vh window (clip-path) over a fixed
-		// 100vh layer. The first image grows from small to full-bleed as it
-		// enters, snaps at full, then text scrubs in during the pinned dwell.
-		// On exit the outgoing image inflates from the bottom edge while the
-		// next section's window slides over it.
+		// Miles158-style: each section pins at the top and a scrubbed timeline
+		// runs the sequence. The first image rises from the bottom while
+		// growing to full-bleed (eased scrub lands it crisply), then the text
+		// fades in, then a hold. The next section enters with a bottom-up
+		// clip-path reveal keyed off the previous section's exit while the
+		// outgoing image inflates from its bottom edge.
 		const scrollTriggers: ScrollTrigger[] = [];
 		const features = gsap.utils.toArray<HTMLElement>('.feature');
 		features.forEach((section, i) => {
+			const stage = section.querySelector<HTMLElement>('.feature-stage');
 			const frame = section.querySelector<HTMLElement>('.feature-frame');
 			const img = section.querySelector<HTMLElement>('.feature-img');
 			const textItems = gsap.utils.toArray<HTMLElement>(
 				section.querySelectorAll('.feature-text > *')
 			);
+			if (!stage || !frame || !img) return;
 
-			// First feature only — grow from small frame to full-bleed, snap at full
-			if (i === 0 && frame) {
-				const grow = gsap.fromTo(
+			gsap.set(textItems, { opacity: 0, y: 24 });
+
+			// Pinned sequence — grow (first only) → text in → hold
+			const featTl = gsap.timeline({
+				scrollTrigger: {
+					trigger: section,
+					start: 'top top',
+					end: i === 0 ? '+=220%' : '+=160%',
+					pin: true,
+					scrub: 1,
+					anticipatePin: 1,
+					invalidateOnRefresh: true
+				}
+			});
+
+			if (i === 0) {
+				// Image rises from below while growing to 100vw × 100vh
+				gsap.set(frame, {
+					yPercent: 100,
+					scale: 0.32,
+					opacity: 0,
+					transformOrigin: 'bottom center'
+				});
+				featTl.to(frame, { opacity: 1, duration: 0.2 });
+				featTl.to(
 					frame,
-					{ width: '62vw', height: '62vh' },
-					{
-						width: '100vw',
-						height: '100vh',
-						ease: 'none',
-						scrollTrigger: {
-							trigger: section,
-							start: 'top bottom',
-							end: 'top top',
-							scrub: true,
-							snap: {
-								snapTo: (value) => (value > 0.82 ? 1 : value),
-								duration: { min: 0.2, max: 0.6 },
-								ease: 'power1.inOut'
-							},
-							invalidateOnRefresh: true
-						}
-					}
+					{ yPercent: 0, scale: 1, duration: 1.6, ease: 'power2.out' },
+					'-=0.15'
 				);
-				if (grow.scrollTrigger) scrollTriggers.push(grow.scrollTrigger);
 			}
 
-			// Text scrubs in while the layer is pinned (the dwell height)
-			if (textItems.length) {
-				const textTl = gsap.timeline({
+			featTl.to(
+				textItems,
+				{ opacity: 1, y: 0, duration: 0.6, stagger: 0.15, ease: 'power2.out' },
+				i === 0 ? '+=0.3' : '+=0.1'
+			);
+			// Hold while the image stays on screen before the next reveal
+			featTl.to({}, { duration: 0.6 });
+			if (featTl.scrollTrigger) scrollTriggers.push(featTl.scrollTrigger);
+
+			// Entry of this section (2nd / 3rd) — clip-path reveals bottom → top
+			// while the previous section scrolls out
+			if (i > 0) {
+				const prev = features[i - 1];
+				gsap.set(stage, { clipPath: 'inset(100% 0 0 0)' });
+				const entry = ScrollTrigger.create({
+					trigger: prev,
+					start: 'bottom bottom',
+					end: 'bottom top',
+					scrub: true,
+					invalidateOnRefresh: true,
+					onUpdate: (self) => {
+						gsap.set(stage, {
+							clipPath: `inset(${(1 - self.progress) * 100}% 0 0 0)`
+						});
+					}
+				});
+				scrollTriggers.push(entry);
+			}
+
+			// Exit parallax — the outgoing image inflates from the bottom edge
+			const exit = gsap.fromTo(
+				img,
+				{ scale: 1 },
+				{
+					scale: 1.15,
+					ease: 'none',
 					scrollTrigger: {
 						trigger: section,
-						start: 'top top',
-						end: () => `+=${section.offsetHeight - window.innerHeight}`,
+						start: 'bottom bottom',
+						end: 'bottom top',
 						scrub: true,
 						invalidateOnRefresh: true
 					}
-				});
-				textTl.fromTo(
-					textItems,
-					{ opacity: 0, y: 24 },
-					{ opacity: 1, y: 0, stagger: 0.18, duration: 0.6, ease: 'power2.out' }
-				);
-				// Tail dwell so the text rests fully visible before the exit
-				textTl.to({}, { duration: 0.5 });
-				if (textTl.scrollTrigger) scrollTriggers.push(textTl.scrollTrigger);
-			}
-
-			// Exit parallax — bottom-origin inflate while the clip pulls away
-			if (img) {
-				const exit = gsap.fromTo(
-					img,
-					{ scale: 1 },
-					{
-						scale: 1.18,
-						ease: 'none',
-						scrollTrigger: {
-							trigger: section,
-							start: 'bottom bottom',
-							end: 'bottom top',
-							scrub: true,
-							invalidateOnRefresh: true
-						}
-					}
-				);
-				if (exit.scrollTrigger) scrollTriggers.push(exit.scrollTrigger);
-			}
+				}
+			);
+			if (exit.scrollTrigger) scrollTriggers.push(exit.scrollTrigger);
 		});
 
 		// Refresh once images have loaded so triggers use final layout heights
@@ -225,9 +234,6 @@
 		return () => {
 			document.body.style.overflow = '';
 			document.documentElement.style.overflow = '';
-			if ('scrollRestoration' in history) {
-				history.scrollRestoration = 'auto';
-			}
 			window.removeEventListener('load', refreshOnLoad);
 			tl.kill();
 			scrollTriggers.forEach((st) => st.kill());
@@ -305,7 +311,7 @@
      PRODUCT — bottle, full-bleed
      ───────────────────────────────────────────────────── -->
 <section id="product" class="feature">
-	<div class="feature-layer">
+	<div class="feature-stage">
 		<div class="feature-frame">
 			<img class="feature-img" src="/images/bottle-gm26.jpg" alt="Scape Whisky GM26 bottle" />
 			<div class="feature-veil"></div>
@@ -333,7 +339,7 @@
      DISTILLERY — copper still, full-bleed
      ───────────────────────────────────────────────────── -->
 <section id="distillery" class="feature">
-	<div class="feature-layer">
+	<div class="feature-stage">
 		<div class="feature-frame">
 			<img class="feature-img" src="/images/gallery-maturation.jpg" alt="Copper pot still" />
 			<div class="feature-veil"></div>
@@ -361,7 +367,7 @@
      LANDSCAPE — Kirishima, full-bleed
      ───────────────────────────────────────────────────── -->
 <section id="landscape" class="feature">
-	<div class="feature-layer">
+	<div class="feature-stage">
 		<div class="feature-frame">
 			<img class="feature-img" src="/images/landscape-miyazaki.jpg" alt="Kirishima mountain forest" />
 			<div class="feature-veil"></div>
@@ -631,41 +637,40 @@
 	}
 
 	/* ───── FEATURE SECTIONS (Product / Distillery / Landscape) ─────
-	   Anse-style window reveal: the section is a tall clip window
-	   (clip-path creates the moving viewport) over a fixed 100vh layer.
-	   The extra height beyond 100vh is the pinned dwell that drives
-	   the text scrub. */
+	   Miles158-style: ScrollTrigger pins each section; the first image
+	   rises from below while growing to full-bleed, text fades in over
+	   it, and the next section clip-reveals bottom-up over the exit. */
 	.feature {
 		position: relative;
-		height: 220vh;
+		height: 100vh;
 		margin-left: calc(var(--padding) * -1);
 		margin-right: calc(var(--padding) * -1);
-		clip-path: inset(0);
 		color: var(--c-white);
 	}
 
-	.feature-layer {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100vh;
-	}
-
-	/* Image frame — GSAP grows the first feature from 62vw/62vh to full */
-	.feature-frame {
-		position: absolute;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%);
-		width: 100vw;
+	.feature-stage {
+		position: relative;
 		height: 100vh;
 		overflow: hidden;
+		/* Dark band shows while the clip window opens ahead of the image */
+		background: var(--c-dark);
+		will-change: clip-path;
+	}
+
+	/* Image frame — GSAP rises/scales the first feature from the bottom */
+	.feature-frame {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		justify-content: center;
+		align-items: flex-end;
+		overflow: hidden;
+		will-change: transform;
 	}
 
 	.feature-img {
-		width: 100%;
-		height: 100%;
+		width: 100vw;
+		height: 100vh;
 		object-fit: cover;
 		/* Exit parallax inflates from the bottom edge (scale set per frame) */
 		transform-origin: 50% 100%;
@@ -708,6 +713,7 @@
 		font-size: 20px;
 		line-height: 1.3;
 		letter-spacing: 0;
+		text-transform: lowercase;
 		color: var(--c-white);
 		margin: 0 0 var(--sp-3) 0;
 	}
@@ -742,6 +748,7 @@
 		line-height: 1.1;
 		color: var(--c-accent);
 		letter-spacing: 0;
+		text-transform: lowercase;
 	}
 
 	.cask-body {
@@ -894,6 +901,10 @@
 	.contact-inner :global(.h2),
 	.contact-inner :global(.body) {
 		color: var(--c-white);
+	}
+
+	.contact-inner :global(.h2) {
+		text-transform: lowercase;
 	}
 
 	.contact-link {

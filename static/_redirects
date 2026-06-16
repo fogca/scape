@@ -1,0 +1,5 @@
+# 301 redirects — old flat URLs → Shopify-parity structure.
+# Cloudflare Pages reads this file at the edge (not active in `vite dev`).
+/company        /pages/company            301
+/legal          /pages/legal              301
+/privacy        /policies/privacy-policy  301

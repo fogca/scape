@@ -40,18 +40,10 @@
 	];
 </script>
 
-<svelte:head>
-	<title>特定商取引法に基づく表記 — Scape Whisky</title>
-	<meta
-		name="description"
-		content="Scape Whisky の特定商取引法に基づく表記。販売事業者、支払方法、引渡時期、返品、酒類販売に関する事項。"
-	/>
-</svelte:head>
-
 <article class="legalpage">
 	<header class="legalpage-head">
 		<p class="eyebrow">Legal</p>
-		<h1 class="legalpage-title">特定商取引法に基づく表記</h1>
+		<h1 class="legalpage-title">特定商取引法に<br />基づく表記</h1>
 		<p class="legalpage-lead">
 			特定商取引に関する法律第11条に基づき、以下のとおり表示します。
 		</p>
@@ -65,8 +57,6 @@
 			</div>
 		{/each}
 	</dl>
-
-	<a href="/" class="legalpage-back">← Back to home</a>
 </article>
 
 <style>
@@ -74,7 +64,7 @@
 		max-width: 720px;
 		margin: 0 auto;
 		padding-top: 120px;
-		padding-bottom: var(--sp-12);
+		padding-bottom: var(--sp-5);
 	}
 
 	.legalpage-head {
@@ -91,10 +81,11 @@
 	}
 
 	.legalpage-title {
-		font-family: var(--font-en);
-		font-weight: 900;
-		font-size: clamp(26px, 4.5vw, 44px);
-		line-height: 1.15;
+		font-family: var(--font-ja);
+		font-weight: 700;
+		font-size: 48px;
+		line-height: 1.4;
+		letter-spacing: 0;
 		color: var(--c-text);
 		margin: 0 0 var(--sp-6);
 	}
@@ -109,20 +100,24 @@
 	}
 
 	.legal-spec {
-		margin: 0 0 var(--sp-10);
+		margin: 0 0 var(--sp-8);
 	}
 
 	.legal-row {
 		display: grid;
 		grid-template-columns: 200px 1fr;
 		gap: var(--sp-5);
-		padding: var(--sp-5) 0;
+		padding: var(--sp-6) 0 var(--sp-5);
 		border-bottom: 1px solid var(--c-line);
 	}
 
+	.legal-row:first-child {
+		border-top: 1px solid var(--c-line);
+	}
+
 	.legal-row dt {
-		font-family: var(--font-en);
-		font-weight: 700;
+		font-family: var(--font-ja);
+		font-weight: 800;
 		font-size: 13px;
 		line-height: 1.7;
 		color: var(--c-text);
@@ -130,31 +125,35 @@
 
 	.legal-row dd {
 		font-family: var(--font-ja);
-		font-size: 13px;
+		font-weight: 500;
+		font-size: 15px;
 		line-height: 1.85;
 		color: var(--c-text);
 		margin: 0;
 	}
 
-	.legalpage-back {
-		font-family: var(--font-en);
-		font-weight: 500;
-		font-size: 13px;
-		color: var(--c-text);
-		text-decoration: none;
-		border-bottom: 1px solid var(--c-line);
-		padding-bottom: 4px;
-		transition: opacity var(--duration-default) ease;
-	}
-
-	.legalpage-back:hover {
-		opacity: 0.6;
-	}
-
 	@media (max-width: 540px) {
+		.legalpage {
+			margin-inline: 0;
+		}
+
+		.legalpage-title {
+			font-size: 40px;
+		}
+
 		.legal-row {
 			grid-template-columns: 1fr;
-			gap: var(--sp-2);
+			gap: 0;
+		}
+
+		.legal-row dt {
+			font-size: 12px;
+			font-weight: 800;
+		}
+
+		.legal-row dd {
+			font-size: 14px;
+			font-weight: 500;
 		}
 	}
 </style>
