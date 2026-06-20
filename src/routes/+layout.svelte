@@ -113,6 +113,7 @@
 				<li><a href="/pages/legal">Legal</a></li>
 				<li><a href="/policies/privacy-policy">Privacy</a></li>
 			</ul>
+			<a class="teaser-contact" href="mailto:info@scapewhisky.com">info@scapewhisky.com</a>
 			<p class="teaser-copy">© scape whisky, 2026</p>
 		</div>
 	{/if}
@@ -130,9 +131,10 @@
 	.teaser-foot {
 		margin-top: auto;
 		display: flex;
+		flex-wrap: wrap;
 		justify-content: space-between;
 		align-items: baseline;
-		gap: var(--sp-5);
+		gap: var(--sp-3) var(--sp-5);
 		padding: var(--sp-6) 0 var(--sp-5);
 		opacity: 0.5;
 	}
@@ -146,6 +148,7 @@
 	}
 
 	.teaser-legal a,
+	.teaser-contact,
 	.teaser-copy {
 		font-family: var(--font-en);
 		font-weight: 400;
@@ -154,17 +157,31 @@
 		color: var(--c-text);
 	}
 
-	.teaser-legal a {
+	.teaser-legal a,
+	.teaser-contact {
 		text-decoration: none;
 		transition: opacity var(--duration-default) ease;
 	}
 
-	.teaser-legal a:hover {
+	.teaser-legal a:hover,
+	.teaser-contact:hover {
 		opacity: 0.6;
+	}
+
+	.teaser-contact {
+		white-space: nowrap;
 	}
 
 	.teaser-copy {
 		margin: 0;
 		white-space: nowrap;
+	}
+
+	@media (max-width: 540px) {
+		.teaser-foot {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: var(--sp-2);
+		}
 	}
 </style>
