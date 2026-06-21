@@ -70,24 +70,33 @@
 		// Phase 2 (delayed) — taglines fade in AFTER the image fills the screen
 		tl.to([taglineTop, taglineBottom], { opacity: 1, duration: 0.9, stagger: 0.15 }, '+=0.2');
 
-		// ─── Fade-up on scroll for the concept block ───
+		// ─── Fade-up for the concept block (paragraphs + CTA) ───
+		// IntersectionObserver, not ScrollTrigger: ScrollTrigger raced with the
+		// intro's refresh in some environments and left items stuck at opacity:0.
+		// IO keys off real viewport intersection, so it can't desync — and the
+		// reveal callback always runs once the block scrolls in.
 		const scrollTriggers: ScrollTrigger[] = [];
+		let conceptIO: IntersectionObserver | null = null;
 		const conceptItems = gsap.utils.toArray<HTMLElement>('.concept-text > *');
-		if (conceptItems.length) {
-			const tween = gsap.from(conceptItems, {
-				opacity: 0,
-				y: 28,
-				duration: 0.9,
-				ease: 'power2.out',
-				stagger: 0.12,
-				scrollTrigger: {
-					trigger: conceptItems[0],
-					start: 'top 80%',
-					toggleActions: 'play none none none'
-				}
-			});
-			const st = tween.scrollTrigger;
-			if (st) scrollTriggers.push(st);
+		const conceptBlock = document.querySelector('.concept-text');
+		if (conceptItems.length && conceptBlock) {
+			gsap.set(conceptItems, { opacity: 0, y: 28 });
+			conceptIO = new IntersectionObserver(
+				(entries) => {
+					if (!entries.some((e) => e.isIntersecting)) return;
+					gsap.to(conceptItems, {
+						// Paragraphs rest at 0.85; the CTA stays fully opaque.
+						opacity: (_i, el) => ((el as HTMLElement).classList.contains('concept-cta') ? 1 : 0.85),
+						y: 0,
+						duration: 0.9,
+						ease: 'power2.out',
+						stagger: 0.12
+					});
+					conceptIO?.disconnect();
+				},
+				{ rootMargin: '0px 0px -12% 0px', threshold: 0 }
+			);
+			conceptIO.observe(conceptBlock);
 		}
 
 		return () => {
@@ -95,6 +104,7 @@
 			document.documentElement.style.overflow = '';
 			unlockScroll();
 			tl.kill();
+			conceptIO?.disconnect();
 			scrollTriggers.forEach((st) => st.kill());
 		};
 	});
@@ -151,15 +161,17 @@
 		<p class="concept-body bold">
 			つくる私たちも、飲むあなたも、まだ見ぬ景色へ。
 		</p>
+
+		<a class="concept-cta" href="mailto:info@scapewhisky.com">お問い合わせ</a>
 	</div>
 
-	<h2 class="statement" aria-label="Japanese scape whisky · Coming Soon">
+	<h2 class="statement" aria-label="Japanese scape whisky · Coming soon">
 		<div class="marquee" aria-hidden="true">
 			<div class="marquee-track">
-				<span class="marquee-item">Japanese scape whisky&nbsp;·&nbsp;Coming Soon&nbsp;·&nbsp;</span>
-				<span class="marquee-item">Japanese scape whisky&nbsp;·&nbsp;Coming Soon&nbsp;·&nbsp;</span>
-				<span class="marquee-item">Japanese scape whisky&nbsp;·&nbsp;Coming Soon&nbsp;·&nbsp;</span>
-				<span class="marquee-item">Japanese scape whisky&nbsp;·&nbsp;Coming Soon&nbsp;·&nbsp;</span>
+				<span class="marquee-item">Japanese scape whisky&nbsp;·&nbsp;Coming soon&nbsp;·&nbsp;</span>
+				<span class="marquee-item">Japanese scape whisky&nbsp;·&nbsp;Coming soon&nbsp;·&nbsp;</span>
+				<span class="marquee-item">Japanese scape whisky&nbsp;·&nbsp;Coming soon&nbsp;·&nbsp;</span>
+				<span class="marquee-item">Japanese scape whisky&nbsp;·&nbsp;Coming soon&nbsp;·&nbsp;</span>
 			</div>
 		</div>
 	</h2>
@@ -285,7 +297,6 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--sp-5);
-		opacity: 0.85;
 	}
 
 	@media (min-width: 1024px) {
@@ -301,6 +312,29 @@
 		letter-spacing: 0;
 		color: var(--c-text);
 		text-align: center;
+		opacity: 0.85;
+	}
+
+	/* Contact CTA — sits below the concept copy */
+	.concept-cta {
+		align-self: center;
+		margin-top: var(--sp-2);
+		margin-bottom: 40px;
+		font-family: var(--font-ja);
+		font-weight: 500;
+		font-size: 13px;
+		letter-spacing: 0;
+		color: var(--c-white);
+		background: var(--c-accent);
+		border: none;
+		border-radius: 999px;
+		padding: 13px 32px;
+		text-decoration: none;
+		transition: opacity var(--duration-default) ease;
+	}
+
+	.concept-cta:hover {
+		opacity: 0.85;
 	}
 
 	/* PC keeps the authored line breaks; SP lets the text flow naturally. */
