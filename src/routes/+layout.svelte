@@ -178,10 +178,32 @@
 	}
 
 	@media (max-width: 540px) {
+		/* SP: email (underlined) above the legal links on the bottom-left,
+		   copyright pinned to the bottom-right. */
 		.teaser-foot {
-			flex-direction: column;
-			align-items: flex-start;
-			gap: var(--sp-2);
+			display: grid;
+			grid-template-columns: 1fr auto;
+			grid-template-areas:
+				'contact .'
+				'legal copy';
+			align-items: end;
+			gap: var(--sp-3) var(--sp-4);
+		}
+
+		.teaser-contact {
+			grid-area: contact;
+			justify-self: start;
+			text-decoration: underline;
+			text-underline-offset: 3px;
+		}
+
+		.teaser-legal {
+			grid-area: legal;
+		}
+
+		.teaser-copy {
+			grid-area: copy;
+			justify-self: end;
 		}
 	}
 </style>
